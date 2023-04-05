@@ -37,6 +37,7 @@ class _6_YourOwnAnimationPanel extends JPanel {
 	private final ApplicationTime t;
 
 	private double time;
+	private  double collisionsTime;
 
 	public _6_YourOwnAnimationPanel(ApplicationTime thread) {
 		this.t = thread;
@@ -49,13 +50,20 @@ class _6_YourOwnAnimationPanel extends JPanel {
 
 	int width = _0_Constants.WINDOW_WIDTH;
 	int height = _0_Constants.WINDOW_HEIGHT;
-	double startX = 20;
+	double startX = width /2;
 	double startY = 20;
-	double vX = 160;
-	double vY = 20;
+	double vX = 0;
+	double vY = 0;
 	double currentX = startX;
 	double currentY = startY;
 	int diameter = 50;
+	double deltaTime = 0.0;
+	double lastFrameTime = 0.0;
+	private double gravity = 100.00;
+	private double energyLoss = 0.8;
+	private boolean onGround = false;
+
+
 
 	// drawing operations should be done in this method
 	@Override
@@ -64,17 +72,48 @@ class _6_YourOwnAnimationPanel extends JPanel {
 		super.paintComponent(g);
 		time = t.getTimeInSeconds();
 
+
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(0, 0, _0_Constants.WINDOW_WIDTH, _0_Constants.WINDOW_HEIGHT);
 
-		currentX = startX + time * vX;
-		currentY = startY + time * vY;
 
-		// TODO: do something to bounce the ball
-		// bounce might change x coordinate
+		deltaTime = time - lastFrameTime;
+		lastFrameTime = time;
+
+
+		if (currentY + diameter >= _0_Constants.WINDOW_HEIGHT) {
+			vY = -vY * energyLoss; // reverse vertical velocity with energy loss
+			currentY = _0_Constants.WINDOW_HEIGHT - diameter; // adjust position to not penetrate ground
+			onGround = true;
+		} else {
+			vY += gravity * deltaTime; // apply gravity
+			onGround = false;
+		}
+
+		if (currentX + diameter >= _0_Constants.WINDOW_WIDTH || currentX <= 0) {
+			vX = -vX; // reverse horizontal velocity on collision with walls
+		}
+
+		currentX += vX * deltaTime;
+
+		// update vertical position
+		currentY += vY * deltaTime;
 
 		g.setColor(Color.RED);
 		g.fillOval((int) currentX, (int) currentY, diameter, diameter);
+
+		//currentX = currentX + (vX * deltaTime);
+		//currentY = currentY + (vY * deltaTime);
+
+
+		// TODO: do something to bounce the ball
+
+
+
+
+
+
+
 
 		/*
 		 * Exercises:
@@ -93,6 +132,22 @@ class _6_YourOwnAnimationPanel extends JPanel {
 		 *
 		 * Improve the application by ensuring that the ball does not penetrate into the
 		 * right-hand wall.
+		 *
+		 * if(currentX + diameter >= width){
+			vX = -vX;
+			startX = width - diameter;
+			collisionsTime = time;
+		} else if (currentX <= 0) {
+			vX = -vX;
+			currentX = 1;
+		}
+
+
+		g.setColor(Color.RED);
+		g.fillOval((int) currentX, (int) currentY, diameter, diameter);
+
+		currentX = startX + (time - collisionsTime) * vX;
+		currentY = startY + time  * vY;
 		 *
 		 * 2) Choose any initial conditions (startX, startY, vX, vY ). Let the
 		 * circle/ball "bounce off the walls", i.e. provide for correct changes of
@@ -115,11 +170,41 @@ class _6_YourOwnAnimationPanel extends JPanel {
 		 *
 		 * (ii) Note the following ways of formatting numerical output:
 		 *
-		 * System.out.println("vX = " + (double) Math.round(100 * vX) / 100);
-		 * System.out.println("currentX = " + (double) Math.round(100 * currentX) /
-		 * 100); System.out.println("currentY = " + (double) Math.round(100 * currentY)
-		 * / 100 + '\n');
-		 *
+		 * deltaTime = time - lastFrameTime;
+		lastFrameTime = time;
+
+
+		if (currentX >= _0_Constants.WINDOW_WIDTH - diameter) {
+			System.out.println("Objekt hat die rechte Wand getroffen");
+			vX = -vX;
+			currentX = _0_Constants.WINDOW_WIDTH - diameter - 1;
+		} else if (currentX <= 0) {
+			System.out.println("Objekt hat die linke Wand getroffen");
+			vX = -vX;
+			currentX = 1;
+		}
+
+		if (currentY >= _0_Constants.WINDOW_HEIGHT - diameter) {
+			System.out.println("Objekt hat die untere Wand getroffen");
+			vY = -vY;
+			currentY = _0_Constants.WINDOW_HEIGHT - diameter - 1;
+		} else if (currentY <= 0) {
+			System.out.println("Objekt hat die obere Wand getroffen");
+			vY = -vY;
+			currentY = 1;
+		}
+
+
+
+		g.setColor(Color.RED);
+		g.fillOval((int) currentX, (int) currentY, diameter, diameter);
+
+		currentX = currentX + (vX * deltaTime);
+		currentY = currentY + (vY * deltaTime);
+
+		System.out.println("vX = " + (double) Math.round(100 * vX) / 100);
+		System.out.println("currentX = " + (double) Math.round(100 * currentX) /100);
+		System.out.println("currentY = " + (double) Math.round(100 * currentY) / 100 + '\n');
 		 *
 		 * 3) Simulate the motion of the ball/circle under the influence of gravity
 		 * Place the circle a some height h above the floor (bottom frame border) with
@@ -130,7 +215,59 @@ class _6_YourOwnAnimationPanel extends JPanel {
 		 * there shall now be a loss of kinetic energy each time the ball hits the
 		 * bottom.
 		 *
-		 *
+		 *int width = _0_Constants.WINDOW_WIDTH;
+	int height = _0_Constants.WINDOW_HEIGHT;
+	double startX = width /2;
+	double startY = 20;
+	double vX = 0;
+	double vY = 0;
+	double currentX = startX;
+	double currentY = startY;
+	int diameter = 50;
+	double deltaTime = 0.0;
+	double lastFrameTime = 0.0;
+	private double gravity = 100.00;
+	private double energyLoss = 0.8;
+	private boolean onGround = false;
+
+
+
+	// drawing operations should be done in this method
+	@Override
+	protected void paintComponent(Graphics g) {
+
+		super.paintComponent(g);
+		time = t.getTimeInSeconds();
+
+
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(0, 0, _0_Constants.WINDOW_WIDTH, _0_Constants.WINDOW_HEIGHT);
+
+
+		deltaTime = time - lastFrameTime;
+		lastFrameTime = time;
+
+
+		if (currentY + diameter >= _0_Constants.WINDOW_HEIGHT) {
+			vY = -vY * energyLoss; // reverse vertical velocity with energy loss
+			currentY = _0_Constants.WINDOW_HEIGHT - diameter; // adjust position to not penetrate ground
+			onGround = true;
+		} else {
+			vY += gravity * deltaTime; // apply gravity
+			onGround = false;
+		}
+
+		if (currentX + diameter >= _0_Constants.WINDOW_WIDTH || currentX <= 0) {
+			vX = -vX; // reverse horizontal velocity on collision with walls
+		}
+
+		currentX += vX * deltaTime;
+
+		// update vertical position
+		currentY += vY * deltaTime;
+
+		g.setColor(Color.RED);
+		g.fillOval((int) currentX, (int) currentY, diameter, diameter);
 		 */
 
 	}
